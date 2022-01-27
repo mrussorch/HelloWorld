@@ -41,7 +41,7 @@ namespace HelloWorld.Services
                 if (item is null) return null;
                 item.Update(toDoDTO.Text);
             }
-            await _context.SaveChangesAsync();
+            if (!await SaveContext()) return null;
             var result = _mapper.Map<ToDoDTO>(item);
             return result;
             
@@ -49,7 +49,14 @@ namespace HelloWorld.Services
 
         public async Task<ToDoDTO> Complete(string id)
         {
-            throw new NotImplementedException();
+            var item = await _context.ToDos.FindAsync(id);
+            if (item is null) return null;
+            item.Complete();
+
+            if (!await SaveContext()) return null;
+            var result = _mapper.Map<ToDoDTO>(item);
+            return result;
+
         }
 
         public async Task<bool> Delete(string id)
@@ -61,10 +68,8 @@ namespace HelloWorld.Services
                 return false;
             }
 
-            _context.ToDos.Remove(toDoModel);
-            await _context.SaveChangesAsync();
-
-            return true;
+            _context.ToDos.Remove(toDoModel); 
+            return await SaveContext();
         }
 
         public async Task<ToDoDTO> Get(string id)
@@ -75,6 +80,20 @@ namespace HelloWorld.Services
         public async Task<IEnumerable<ToDoDTO>> List()
         {
             return _mapper.Map<IEnumerable<ToDoDTO>>(await _context.ToDos.ToListAsync());
+        }
+
+        private async Task<bool> SaveContext()
+        {
+            try
+            {
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+           
         }
     }
 }
