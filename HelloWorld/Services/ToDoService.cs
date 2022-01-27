@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HelloWorld.DTO;
 using HelloWorld.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,12 +69,12 @@ namespace HelloWorld.Services
 
         public async Task<ToDoDTO> Get(string id)
         {
-            throw new NotImplementedException();
+            return _mapper.Map<ToDoDTO>(await _context.ToDos.FindAsync(id));
         }
 
         public async Task<IEnumerable<ToDoDTO>> List()
         {
-            throw new NotImplementedException();
+            return _mapper.Map<IEnumerable<ToDoDTO>>(await _context.ToDos.ToListAsync());
         }
     }
 }
