@@ -16,14 +16,10 @@ namespace HelloWorld.Controllers
     [ApiController]
     public class ToDoModelsController : ControllerBase
     {
-        private readonly ToDoDbContext _context;
-        private readonly IMapper _mapper;
         private readonly IToDoService _service;
 
-        public ToDoModelsController(ToDoDbContext context, IMapper mapper, IToDoService service)
+        public ToDoModelsController(IToDoService service)
         {
-            _context = context;
-            _mapper = mapper;
             _service = service;
         }
 
@@ -31,52 +27,32 @@ namespace HelloWorld.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ToDoModel>>> GetToDos()
         {
-            return await _context.ToDos.ToListAsync();
+            return Ok(await _service.List());
         }
 
         // GET: api/ToDoModels/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ToDoModel>> GetToDoModel(string id)
         {
-            var toDoModel = await _context.ToDos.FindAsync(id);
 
-            if (toDoModel == null)
+            var result = await _service.Get(id);
+
+            if (result == null)
             {
                 return NotFound();
             }
 
-            return toDoModel;
+            return Ok(result);
         }
 
         // PUT: api/ToDoModels/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutToDoModel(string id, ToDoModel toDoModel)
+        public async Task<IActionResult> CompleteToDoModel(string id)
         {
-            if (id != toDoModel.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(toDoModel).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ToDoModelExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            var result = await _service.Complete(id);
+            if (result is null) return BadRequest();
+            return Ok(result);
         }
 
         // POST: api/ToDoModels
@@ -93,15 +69,9 @@ namespace HelloWorld.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteToDoModel(string id)
         {
-
             var result = await _service.Delete(id);
-            if (result == false) return BadRequest();
+            if (!result) return BadRequest();
             return Ok(result);
-        }
-
-        private bool ToDoModelExists(string id)
-        {
-            return _context.ToDos.Any(e => e.Id == id);
         }
     }
 }
