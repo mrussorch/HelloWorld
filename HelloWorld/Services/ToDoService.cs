@@ -53,7 +53,17 @@ namespace HelloWorld.Services
 
         public async Task<bool> Delete(string id)
         {
-            throw new NotImplementedException();
+
+            var toDoModel = await _context.ToDos.FindAsync(id);
+            if (toDoModel == null)
+            {
+                return false;
+            }
+
+            _context.ToDos.Remove(toDoModel);
+            await _context.SaveChangesAsync();
+
+            return true;
         }
 
         public async Task<ToDoDTO> Get(string id)

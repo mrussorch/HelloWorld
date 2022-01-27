@@ -93,16 +93,10 @@ namespace HelloWorld.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteToDoModel(string id)
         {
-            var toDoModel = await _context.ToDos.FindAsync(id);
-            if (toDoModel == null)
-            {
-                return NotFound();
-            }
 
-            _context.ToDos.Remove(toDoModel);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            var result = await _service.Delete(id);
+            if (result == false) return BadRequest();
+            return Ok(result);
         }
 
         private bool ToDoModelExists(string id)
