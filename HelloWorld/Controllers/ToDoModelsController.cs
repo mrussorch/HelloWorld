@@ -84,7 +84,7 @@ namespace HelloWorld.Controllers
         [HttpPost]
         public async Task<ActionResult<ToDoDTO>> PostToDoModel(ToDoDTO toDoDTO)
         {       
-            var result = _service.AddOrUpdate(toDoDTO);
+            var result = await _service.AddOrUpdate(toDoDTO);
             if(result is null) return BadRequest();
             return Ok(result);
         }
