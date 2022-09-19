@@ -80,6 +80,20 @@ namespace HelloWorld
             {
                 endpoints.MapControllers();
             });
+
+            UpgradeDatabase(app);
+        }
+
+        private static void UpgradeDatabase(IApplicationBuilder app)
+        {
+            using (var serviceScope = app.ApplicationServices.CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetService<ToDoDbContext>();
+                if (context != null && context.Database != null)
+                {
+                    context.Database.Migrate();
+                }
+            }
         }
     }
 }
